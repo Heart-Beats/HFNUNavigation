@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/location_info"
+        android:layout_width="270dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/information"
+        />
+
+    <ImageView
+        android:id="@+id/close_info_window"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_margin="5dp"
+        android:alpha="0.8"
+        android:src="@drawable/close_info_window"/>
+
+</FrameLayout>

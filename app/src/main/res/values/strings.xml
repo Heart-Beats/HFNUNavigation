@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">合师校园导航</string>
+    <string name="starting_place">起始地</string>
+    <string name="search_point_location">搜索指定地点</string>
+    <string name="my_location">我的位置</string>
+    <string name="destination">目的地</string>
+    <string name="cancle">取消</string>
+    <string name="navigation">导航</string>
+    <string name="click_login_text">点击头像登录</string>
+    <string name="history">历史记录</string>
+    <string name="preferred_location">偏好地点</string>
+    <string name="title_activity_login">登录</string>
+    <string name="delete">删除</string>
+    <string name="login_qq">QQ登录</string>
+    <string name="login_wechat">微信登录</string>
+    <string name="cancle_delete">取消删除</string>
+    <string name="select_all">全选</string>
+    <string name="ok">确定</string>
+    <string name="about">关于</string>
+    <string name="app_info">关于软件</string>
+    <string name="version">V  1.0</string>
+    <string name="author">作者：张磊</string>
+    <string name="author_grade">年级：2014级软件工程</string>
+    <string name="author_qq">QQ：913305160</string>
+    <string name="author_email">邮箱：h913305160@gmail.com</string>
+
+</resources>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<litepal>
+<!--
+    定义应用程序的数据库名称。
+    	默认情况下，每个数据库名称应以.db结尾。如果您没有用.db命名数据库端，LitePal会自动为您添加后缀。
+    例如：
+    <dbname value="demo" />
+-->
+<dbname value="school" />
+
+<!--
+    定义数据库的版本。每次你想升级数据库时，版本标签都会有所帮助。
+    	修改您在映射标签中定义的模型，并将版本值加1，数据库的升级将自动处理而不用担心。
+	例如：
+    <version value="1" />
+-->
+<version value="2" />
+
+<!--
+    使用映射标签在列表中定义模型，LitePal将为每个映射类创建表格。
+       模型中定义的支持字段将被映射到列中。
+    例如：
+    <list>
+        <mapping class="com.test.model.Reader" />
+        <mapping class="com.test.model.Magazine" />
+    </list>
+-->
+<list>
+    <mapping class="com.example.hfnunavigation.db.SchoolLocation" />
+</list>
+
+<!--
+    定义.db文件的位置。“内部”意味着.db文件将被存储在内部存储的数据库文件夹中，这是任何人都无法访问的。
+       “external”意味着.db文件将存储主外部存储设备上目录的路径中，应用程序可以在其中放置它拥有的每个人
+        都可以访问的持久性文件。“内部” 将作为违约行为。
+    例如：
+    <storage value="external" />
+-->
+
+</litepal>

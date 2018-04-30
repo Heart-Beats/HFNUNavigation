@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.design.widget.AppBarLayout
+        android:background="@android:color/transparent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/actionBarSize"
+            android:background="@color/colorPrimary"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+        </android.support.v7.widget.Toolbar>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:id="@+id/login_qq"
+            android:layout_gravity="center"
+            android:layout_marginTop="200dp"
+            android:background="@drawable/rounded_border"
+            android:backgroundTint="@color/blue"
+            android:paddingLeft="50dp"
+            android:paddingRight="50dp"
+            android:drawableStart="@drawable/icon_qq"
+            android:drawablePadding="10dp"
+            android:text="@string/login_qq"
+            android:textColor="@color/icons"
+            android:textSize="20sp"
+            android:drawableLeft="@drawable/icon_qq"
+            tools:targetApi="lollipop" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:id="@+id/login_wechat"
+            android:layout_gravity="center"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/rounded_border"
+            android:backgroundTint="@color/green"
+            android:paddingLeft="50dp"
+            android:paddingRight="35dp"
+            android:paddingStart="50dp"
+            android:paddingEnd="35dp"
+            android:drawableStart="@drawable/icon_wechat"
+            android:drawablePadding="10dp"
+            android:text="@string/login_wechat"
+            android:textColor="@color/icons"
+            android:textSize="20sp"
+            android:drawableLeft="@drawable/icon_wechat"
+            tools:targetApi="lollipop" />
+
+    </android.support.design.widget.AppBarLayout>
+
+</android.support.design.widget.CoordinatorLayout>
