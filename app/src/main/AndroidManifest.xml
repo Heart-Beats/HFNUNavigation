@@ -50,6 +50,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".activity.LoginActivity" />
+        <activity android:name=".activity.AplicationAboutActivity" />
         <activity
             android:name=".activity.HistoryActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|screenLayout"
@@ -87,7 +88,6 @@
             android:enabled="true"
             android:process=":remote" />
 
-        <activity android:name=".activity.AplicationAboutActivity" />
     </application>
 
 </manifest>

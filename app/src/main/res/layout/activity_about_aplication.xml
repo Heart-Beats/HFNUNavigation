@@ -61,7 +61,7 @@
             android:layout_height="wrap_content"
             android:padding="15dp"
             android:text="@string/author"
-            android:textSize="20sp"/>
+            android:textSize="15sp"/>
 
         <View
             android:layout_width="match_parent"
@@ -74,7 +74,7 @@
             android:layout_height="wrap_content"
             android:padding="15dp"
             android:text="@string/author_grade"
-            android:textSize="20sp"/>
+            android:textSize="15sp"/>
 
         <View
             android:layout_width="match_parent"
@@ -87,7 +87,7 @@
             android:layout_height="wrap_content"
             android:padding="15dp"
             android:text="@string/author_qq"
-            android:textSize="20sp"/>
+            android:textSize="15sp"/>
 
         <View
             android:layout_width="match_parent"
@@ -100,7 +100,7 @@
             android:layout_height="wrap_content"
             android:padding="15dp"
             android:text="@string/author_email"
-            android:textSize="20sp"/>
+            android:textSize="15sp"/>
 
         <View
             android:layout_width="match_parent"

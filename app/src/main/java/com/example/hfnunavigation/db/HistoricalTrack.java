@@ -5,10 +5,29 @@ import java.util.Date;
 
 public class HistoricalTrack extends DataSupport {
 
+
+    private int id;
     private boolean checkBoxVisibility;
+    private String userID;
     private String startPlaceName;
     private String endPlaceName;
     private Date historyTime;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getUserID() {
+        return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
+    }
 
     public boolean isCheckBoxVisibility() {
         return checkBoxVisibility;
@@ -41,4 +60,5 @@ public class HistoricalTrack extends DataSupport {
     public void setHistoryTime(Date historyTime) {
         this.historyTime = historyTime;
     }
+
 }

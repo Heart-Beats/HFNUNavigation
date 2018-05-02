@@ -4,14 +4,11 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Handler;
-import android.os.Message;
-import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -36,37 +33,28 @@ import android.widget.Toast;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.MapView;
 import com.bumptech.glide.Glide;
+import com.example.hfnunavigation.LoginListener;
 import com.example.hfnunavigation.MessageEvent;
 import com.example.hfnunavigation.MyApplication;
+import com.example.hfnunavigation.MyDialogFragment;
 import com.example.hfnunavigation.NetworkChangeReciver;
 import com.example.hfnunavigation.R;
+import com.example.hfnunavigation.db.HistoricalTrack;
 import com.example.hfnunavigation.map.MyBaiduMap;
-import com.example.hfnunavigation.util.HttpUtil;
 import com.example.hfnunavigation.util.LogUtil;
-import com.tencent.connect.UserInfo;
-import com.tencent.connect.auth.QQToken;
-import com.tencent.tauth.IUiListener;
+import com.example.hfnunavigation.util.StringConstant;
+import com.tencent.connect.common.Constants;
 import com.tencent.tauth.Tencent;
-import com.tencent.tauth.UiError;
-
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import de.hdodenhof.circleimageview.CircleImageView;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
-public class MapActivity extends AppCompatActivity implements View.OnClickListener{
+import de.hdodenhof.circleimageview.CircleImageView;
+
+public class MapActivity extends AppCompatActivity implements View.OnClickListener {
 
     private MyBaiduMap myBaiduMap = MyBaiduMap.getMyBaiduMap();
     public static final int GPSREQUESTCODE = 1;
@@ -76,8 +64,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             Manifest.permission.READ_PHONE_STATE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
-
-
+    private MapView mapView;
     private FloatingActionButton floatingButton;    // 悬浮按钮
     private CardView inputLocationView;             // 整个输入地址视图
     private CircleImageView profilePicture;         // 头像框
@@ -88,11 +75,17 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     private EditText inputDestination;             // 目的地输入框
     private DrawerLayout drawerLayout;            //滑动菜单
     private NavigationView navView;                //滑动菜单页面布局
-    private CircleImageView navProfilePicture;
-    private TextView userName;
+    private CircleImageView navProfilePicture;    //滑动菜单中头布局头像
+    private TextView userName;                     //滑动菜单中头像下方文本
 
-    private boolean confirmExit = true;
-    private Date lastClickBack;
+    private boolean confirmExit = true;          //用来确认用户是否退出程序
+    private Date lastClickBack;                   //上一次点击返回按钮的时间
+    private Tencent mTencent;                      //Tencent API中必须有的实例
+    private LoginListener loginListener;           //QQ登录时回调接口
+    private boolean login;                         //登录状态标志位
+    private String nickName;                        //用户昵称
+    private String profileURL;                      //用户头像地址
+    private String userID;                           //通过QQ号转换来的用户id
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,11 +94,12 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
            注意该方法要在setContentView方法之前实现  */
         SDKInitializer.initialize(MyApplication.getContext());
         setContentView(R.layout.activity_main);
-        MapView mapView = findViewById(R.id.bmapView);
+        mapView = findViewById(R.id.bmapView);
         //获取地图控件引用
         myBaiduMap.setmMapView(mapView);
         myBaiduMap.setmBaiduMap(mapView.getMap());
         customViewInitialize();
+        initStatus();
         requestPermission();
     }
 
@@ -122,8 +116,9 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         Button navigationButton = findViewById(R.id.button_navigation);  //导航按钮
         drawerLayout = findViewById(R.id.drawer_layout);
         navView = findViewById(R.id.nav_view);
-        Resources resource=getBaseContext().getResources();
-        ColorStateList csl=resource.getColorStateList(R.color.navigation_menu_item_color);
+        Resources resource = getBaseContext().getResources();
+        ColorStateList csl = resource.getColorStateList(R.color.navigation_menu_item_color);
+        //设置导航菜单中item的状态
         navView.setItemTextColor(csl);
         //设置MenuItem默认选中项
         //navView.getMenu().getItem(0).setChecked(true);
@@ -136,6 +131,74 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         navProfilePicture.setOnClickListener(this);
     }
 
+    private void initStatus() {
+        mTencent = Tencent.createInstance(StringConstant.TENCENT_APP_ID, this);
+        loginListener = new LoginListener(this, mTencent);
+        //从SharedPreferences读出上次退出软件时登录状态
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        login = pref.getBoolean("isLogin", false);
+        if (login) {
+            String openId = pref.getString("openid", null);
+            String accessToken = pref.getString("access_token", null);
+            Long failureTime = pref.getLong("expires_in", 0); // 实际值需要通过上面介绍的方法来计算
+            Long effectiveTime = (failureTime - System.currentTimeMillis()) / 1000;
+            System.out.println("有效时间：" + effectiveTime + "s");
+            if (effectiveTime <= 0) {
+                Toast.makeText(this, "登录已过期，需重新登录", Toast.LENGTH_SHORT).show();
+                if (!mTencent.isSessionValid()) {
+                    mTencent.login(this, "all", loginListener);
+                    //选取重新登录后的用户头像地址和昵称
+                    loginListener.setmLoginInterface(new LoginListener.LoginInterface() {
+                        @Override
+                        public void afterGetUserInfo() {
+                            //过期获取新的头像URL和昵称
+                            nickName = loginListener.getNickName();
+                            profileURL = loginListener.getProfileURL();
+                            loginStatus();
+                        }
+                    });
+                }
+            } else {
+                //必须设置openid和accessToken，否则获取不到QQ用户的信息
+                mTencent.setOpenId(openId);
+                mTencent.setAccessToken(accessToken, effectiveTime.toString());
+                loginListener.setmLoginInterface(new LoginListener.LoginInterface() {
+                    @Override
+                    public void afterGetUserInfo() {
+                        //没有过期获取头像URL和昵称
+                        nickName = loginListener.getNickName();
+                        profileURL = loginListener.getProfileURL();
+                        System.out.println("昵称：" + nickName);
+                        System.out.println("头像地址：" + profileURL);
+                        loginStatus();
+                    }
+                });
+            }
+            //获取每次打开程序时最新登录的用户ID
+            userID = pref.getString("openid", null);
+        } else {
+            logoutStatus();
+        }
+        System.out.println("用户Id：" + userID);
+    }
+
+    //登录状态头像及昵称设置
+    private void loginStatus() {
+        userName.setText(nickName);
+        userName.setTextSize(20);
+        Glide.with(this).load(profileURL).into(profilePicture);
+        Glide.with(this).load(profileURL).into(navProfilePicture);
+    }
+
+    //登出状态头像及昵称设置
+    private void logoutStatus() {
+        userName.setText(R.string.click_login_text);
+        userName.setTextSize(15);
+        Glide.with(this).load(R.drawable.profile_picture).into(profilePicture);
+        Glide.with(this).load(R.drawable.profile_picture).into(navProfilePicture);
+    }
+
+
     private void requestPermission() {
         List<String> requestPermissionsList = new ArrayList<>();
         for (String permission : permissionsList) {
@@ -145,6 +208,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             }
         }
         if (!requestPermissionsList.isEmpty()) {
+            mapView.setVisibility(View.GONE);
             String[] requestPermissions = requestPermissionsList.toArray(new String[requestPermissionsList.size()]);
             ActivityCompat.requestPermissions(MapActivity.this, requestPermissions, 1);
         } else {
@@ -165,6 +229,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                             return;
                         }
                     }
+                    mapView.setVisibility(View.VISIBLE);
                     requestLocation();
                 } else {
                     Toast.makeText(this, "发生未知错误", Toast.LENGTH_SHORT).show();
@@ -188,15 +253,20 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case GPSREQUESTCODE:
                 LogUtil.d("GPSREQUESTCODE:", GPSREQUESTCODE + "");
                 myBaiduMap.getmLocationClient().start();
                 break;
+                //重新登录时回调需要使用
+            case Constants.REQUEST_LOGIN:
+            case Constants.REQUEST_APPBAR:
+                Tencent.onActivityResultData(requestCode, resultCode, data, loginListener);
+                break;
             default:
                 break;
         }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -287,8 +357,19 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                 Intent intent = new Intent();
                 switch (item.getItemId()) {
                     case R.id.history:
-                        intent.setClass(MapActivity.this, HistoryActivity.class);
-                        startActivity(intent);
+                        if (login) {
+                            intent.setClass(MapActivity.this, HistoryActivity.class);
+                            startActivity(intent);
+                        } else {
+                            Toast.makeText(MapActivity.this, "请登录后再查看历史记录", Toast.LENGTH_SHORT).show();
+                        }
+                        break;
+                    case R.id.preferred_location:
+                        if (login) {
+
+                        } else {
+                            Toast.makeText(MapActivity.this, "请登录后再查看偏好地点", Toast.LENGTH_SHORT).show();
+                        }
                         break;
                     case R.id.about:
                         intent.setClass(MapActivity.this, AplicationAboutActivity.class);
@@ -307,6 +388,14 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         switch (v.getId()) {
             case R.id.navigation_route:  //悬浮按钮点击事件
                 myBaiduMap.getMyWidgetListener().floatingButtonClickListener();
+                if (login) {
+                    HistoricalTrack historicalTrack = new HistoricalTrack();
+                    historicalTrack.setUserID(userID);
+                    historicalTrack.setStartPlaceName("我的位置");
+                    historicalTrack.setEndPlaceName(myBaiduMap.getEndPlaceName());
+                    historicalTrack.setHistoryTime(new Date());
+                    historicalTrack.save();
+                }
                 break;
             case R.id.button_cancle:     //取消按钮点击事件
                 inputLocationView.setVisibility(View.GONE);
@@ -319,6 +408,16 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                 myBaiduMap.setStartPlaceName(inputStartingPlace.getText().toString().trim());
                 myBaiduMap.setEndPlaceName(inputDestination.getText().toString().trim());
                 myBaiduMap.getMyWidgetListener().navigationButtonClickListener();
+                if (myBaiduMap.checkStartAndEndPlace()) {
+                    if (login) {
+                        HistoricalTrack historicalTrack = new HistoricalTrack();
+                        historicalTrack.setUserID(userID);
+                        historicalTrack.setStartPlaceName(myBaiduMap.getStartPlaceName());
+                        historicalTrack.setEndPlaceName(myBaiduMap.getEndPlaceName());
+                        historicalTrack.setHistoryTime(new Date());
+                        historicalTrack.save();
+                    }
+                }
                 //隐藏软键盘
                 if (imm != null) {
                     imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), 0);
@@ -328,8 +427,34 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                 drawerLayout.openDrawer(GravityCompat.START);
                 break;
             case R.id.nav_profile_picture:   //滑动菜单头布局头像点击事件
-                Intent intent = new Intent(MapActivity.this, LoginActivity.class);
-                startActivity(intent);
+                if (!login) {
+                    Intent intent = new Intent(MapActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                } else {
+                    MyDialogFragment myDialogFragment = MyDialogFragment.getInstance(new MyDialogFragment.MyDialogCallBack() {
+                        @Override
+                        public String setMyDialogTitle() {
+                            return "是否确认退出登录？";
+                        }
+
+                        @Override
+                        public void OnDialogOkClick() {
+                            mTencent.logout(MapActivity.this);
+                            login = false;
+                            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MapActivity.this);
+                            SharedPreferences.Editor editor = pref.edit();
+                            editor.putString("openid", null);
+                            editor.putString("access_token", null);
+                            editor.putLong("expires_in", 0);
+                            editor.putBoolean("isLogin", false);
+                            editor.apply();
+                            logoutStatus();
+                            LogUtil.d("登出后状态：", "login:" + pref.getBoolean("isLogin", true));
+                            Toast.makeText(MapActivity.this, "退出登录成功", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    myDialogFragment.show(getSupportFragmentManager(), "logout");
+                }
                 break;
         }
     }
@@ -370,15 +495,21 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (intent.getBooleanExtra("login",false)) {
+        //确认是请求登录的活动后才执行下面操作
+        if (intent.getBooleanExtra("login", false)) {
             setIntent(intent);
-            String nickName = intent.getStringExtra("nickname");
-            String imageurl = intent.getStringExtra("figureurl");
+            nickName = intent.getStringExtra("nickname");
+            profileURL = intent.getStringExtra("figureurl");
             if (nickName != null && profilePicture != null) {
-                userName.setText(nickName);
-                Glide.with(this).load(imageurl).into(profilePicture);
-                Glide.with(this).load(imageurl).into(navProfilePicture);
-
+                loginStatus();
+                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+                login = pref.getBoolean("isLogin", false);
+                //获取每次登录后最新的用户ID
+                userID = pref.getString("openid", null);
+                LogUtil.d("登录后状态：", "login:" + login + ",昵称：" + nickName + ",头像：" + profileURL);
+                System.out.println("用户Id：" + userID);
+            } else {
+                Toast.makeText(this, "获取用户信息失败", Toast.LENGTH_SHORT).show();
             }
         }
     }

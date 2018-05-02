@@ -110,8 +110,16 @@ public class MyBaiduMap {
         this.startPlaceName = startPlaceName;
     }
 
+    public String getStartPlaceName() {
+        return startPlaceName;
+    }
+
     public void setEndPlaceName(String endPlaceName) {
         this.endPlaceName = endPlaceName;
+    }
+
+    public String getEndPlaceName() {
+        return endPlaceName;
     }
 
     public void setDisplayView(boolean displayView) {
@@ -329,6 +337,7 @@ public class MyBaiduMap {
                         //显示InfoWindow
                         mBaiduMap.showInfoWindow(mInfoWindow);
                         endPlace = locationPosition;
+                        endPlaceName = location.getLocationName();
                         walkingPlaining.removeRoute();
                         //当infoWindow显示时清除路线
                     }
@@ -426,6 +435,7 @@ public class MyBaiduMap {
     public void startRoutePlaning() {
         if (!changeStartPlace) { // 默认起点为当前位置
             startPlace = currentLocation;
+            startPlaceName = "我的位置";
         }
         walkingPlaining.startToFinshRoute(startPlace, endPlace);
     }

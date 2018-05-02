@@ -14,7 +14,7 @@
 	例如：
     <version value="1" />
 -->
-<version value="2" />
+<version value="4" />
 
 <!--
     使用映射标签在列表中定义模型，LitePal将为每个映射类创建表格。
@@ -27,6 +27,7 @@
 -->
 <list>
     <mapping class="com.example.hfnunavigation.db.SchoolLocation" />
+    <mapping class="com.example.hfnunavigation.db.HistoricalTrack"/>
 </list>
 
 <!--

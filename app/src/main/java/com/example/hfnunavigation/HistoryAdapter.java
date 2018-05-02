@@ -2,20 +2,18 @@ package com.example.hfnunavigation;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
-
 import com.example.hfnunavigation.activity.MapActivity;
 import com.example.hfnunavigation.db.HistoricalTrack;
 import com.example.hfnunavigation.map.MyBaiduMap;
 import com.example.hfnunavigation.util.StringConstant;
-
 import org.greenrobot.eventbus.EventBus;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -54,8 +52,9 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     }
 
     //创建视图
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.history_item, parent,
                 false);
         final ViewHolder holder = new ViewHolder(view);
@@ -104,7 +103,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
                */
     //使用holder对控件进行绑定设置数据
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         HistoricalTrack historicalTrack = historicalTrackList.get(position);
         if (historicalTrack.isCheckBoxVisibility()) {
             holder.checkBox.setVisibility(View.VISIBLE);
@@ -161,7 +160,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
                                             - analysisHistoryDateResult[i + 4];
                                     //时长,单位：分钟
                                     if (duration <= 60) {
-                                        holder.historyTime.setText(duration + StringConstant.BEFORE_MINUTES);
+                                        if (duration == 0) {
+                                            holder.historyTime.setText(StringConstant.WITHIN_ONE_MINUTES);
+                                        } else {
+                                            holder.historyTime.setText(duration + StringConstant.BEFORE_MINUTES);
+                                        }
                                     } else {  //超过一小时显示时间戳
                                         holder.historyTime.setText(StringConstant.YESTERDAY +
                                                 analysisHistoryDateResult[i + 3]
@@ -198,7 +201,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
                                         analysisHistoryDateResult[i + 3];
                                 //时长,单位：分钟
                                 if (duration <= 60) {
-                                    holder.historyTime.setText(duration + StringConstant.BEFORE_MINUTES);
+                                    if (duration == 0) {
+                                        holder.historyTime.setText(StringConstant.WITHIN_ONE_MINUTES);
+                                    } else {
+                                        holder.historyTime.setText(duration + StringConstant.BEFORE_MINUTES);
+                                    }
                                 } else {  //超过一小时显示时间戳
                                     holder.historyTime.setText(StringConstant.YESTERDAY +
                                             analysisHistoryDateResult[i + 2]
@@ -222,11 +229,14 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
                             int duration = 60 + analysisCurrentDateResult[i + 2] - analysisHistoryDateResult[i + 2];
                             //时长,单位：分钟
                             if (duration <= 60) {
-                                holder.historyTime.setText(duration + StringConstant.BEFORE_MINUTES);
+                                if (duration == 0) {
+                                    holder.historyTime.setText(StringConstant.WITHIN_ONE_MINUTES);
+                                } else {
+                                    holder.historyTime.setText(duration + StringConstant.BEFORE_MINUTES);
+                                }
                             } else {  //超过一小时显示时间戳
                                 holder.historyTime.setText(StringConstant.YESTERDAY + analysisHistoryDateResult[i + 1]
                                         + StringConstant.COLON + analysisHistoryDateResult[i + 2]);
-
                             }
                         } else {
                             holder.historyTime.setText(StringConstant.YESTERDAY + analysisHistoryDateResult[i + 1]
@@ -243,7 +253,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
                         int duration = 60 + analysisCurrentDateResult[i + 1] - analysisHistoryDateResult[i + 1];
                         //时长,单位：分钟
                         if (duration <= 60) {
-                            holder.historyTime.setText(duration + StringConstant.BEFORE_MINUTES);
+                            if (duration == 0) {
+                                holder.historyTime.setText(StringConstant.WITHIN_ONE_MINUTES);
+                            } else {
+                                holder.historyTime.setText(duration + StringConstant.BEFORE_MINUTES);
+                            }
                         } else {  //超过一小时显示时间戳
                             holder.historyTime.setText(StringConstant.TODAY + analysisHistoryDateResult[i]
                                     + StringConstant.COLON + analysisHistoryDateResult[i + 1]);
@@ -258,6 +272,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
                             - analysisHistoryDateResult[i] + StringConstant.BEFORE_MINUTES);
                     return;  //当分钟不匹配时不再向下判断
                 }
+            } else { //当设定的其他各项都相同时，剩下的情况（即秒数不同时以下的情况）
+                holder.historyTime.setText(StringConstant.WITHIN_ONE_MINUTES);
             }
         }
     }
