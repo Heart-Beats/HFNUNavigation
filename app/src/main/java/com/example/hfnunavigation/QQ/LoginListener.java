@@ -1,10 +1,12 @@
-package com.example.hfnunavigation;
+package com.example.hfnunavigation.QQ;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.example.hfnunavigation.QQ.BaseUiListener;
 import com.example.hfnunavigation.activity.MapActivity;
 import com.example.hfnunavigation.util.LogUtil;
 import com.tencent.connect.UserInfo;

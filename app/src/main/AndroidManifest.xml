@@ -40,28 +40,28 @@
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="WiLIn0uYV2n3wHbBzzdd8r9OaodAsNjD" />
 
-        <activity
-            android:name=".activity.MapActivity"
-            android:launchMode="singleTask">
+        <activity android:name=".activity.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activity.MapActivity"
+            android:launchMode="singleTask" />
         <activity android:name=".activity.LoginActivity" />
         <activity android:name=".activity.AplicationAboutActivity" />
         <activity
             android:name=".activity.HistoryActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|screenLayout"
-            android:label="@string/history"
             android:resizeableActivity="false"
             android:screenOrientation="portrait"
-            android:theme="@style/DefaultTheme"
             tools:targetApi="n" />
         <!-- configChanges进行设置后，进入多窗口模式和横竖屏切换活动不会重新创建 -->
         <!-- resizeableActivity设置是否支持多窗口 -->
         <!-- screenOrientation设置支持的屏幕方向 -->
+        <activity android:name=".activity.PreferredLocationActivity" />
         <activity
             android:name="com.tencent.tauth.AuthActivity"
             android:launchMode="singleTask"
@@ -87,7 +87,6 @@
             android:name="com.baidu.location.f"
             android:enabled="true"
             android:process=":remote" />
-
     </application>
 
 </manifest>

@@ -33,6 +33,8 @@ import com.example.hfnunavigation.map.route.WalkingPlaining;
 import com.example.hfnunavigation.school.MySchool;
 import com.example.hfnunavigation.db.SchoolLocation;
 import com.example.hfnunavigation.util.LogUtil;
+import com.example.hfnunavigation.util.SystemUtil;
+
 import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.List;

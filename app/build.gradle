@@ -4,7 +4,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.example.hfnunavigation"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
@@ -36,6 +36,7 @@ dependencies {
     implementation 'org.greenrobot:eventbus:3.1.1'
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
     implementation 'com.github.bumptech.glide:glide:4.7.1'
+    implementation 'com.airbnb.android:lottie:2.5.4'
     implementation files('libs/BaiduLBS_Android.jar')
     implementation files('libs/open_sdk_r5990_lite.jar')
     testImplementation 'junit:junit:4.12'

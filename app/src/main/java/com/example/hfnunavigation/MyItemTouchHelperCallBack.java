@@ -5,6 +5,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
 
+import com.example.hfnunavigation.db.HistoricalTrack;
+
+import org.litepal.crud.DataSupport;
 import java.util.Collections;
 import java.util.List;
 
@@ -13,7 +16,8 @@ public class MyItemTouchHelperCallBack extends ItemTouchHelper.Callback {
 
     private RecyclerView mRecyclerView;
     private List mListData;
-    private boolean itemDrag;
+    private boolean itemDrag = true;
+    private boolean itemSwipe = true;
 
     public MyItemTouchHelperCallBack(RecyclerView recyclerView, List mListData) {
         this.mRecyclerView = recyclerView;
@@ -23,6 +27,10 @@ public class MyItemTouchHelperCallBack extends ItemTouchHelper.Callback {
 
     public void setItemDrag(boolean itemDrag) {
         this.itemDrag = itemDrag;
+    }
+
+    public void setItemSwipe(boolean itemSwipe) {
+        this.itemSwipe = itemSwipe;
     }
 
     //该方法主要作用是定义移动标识，所以针对拖动效果，我们可以首先定义拖动标识,通过ItemTouchHelper提供的参数来定义：
@@ -39,7 +47,9 @@ public class MyItemTouchHelperCallBack extends ItemTouchHelper.Callback {
                 dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
             }
             // if (viewHolder.getAdapterPosition() != 0)
-            swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+            if (itemSwipe) {
+                swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+            }
         }
         return makeMovementFlags(dragFlags, swipeFlags);
     }
@@ -75,6 +85,10 @@ public class MyItemTouchHelperCallBack extends ItemTouchHelper.Callback {
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
         int positon = viewHolder.getAdapterPosition();
         mRecyclerView.getAdapter().notifyItemRemoved(positon);
+        //滑动删除时也删除数据库中的数据
+        HistoricalTrack deleteData = (HistoricalTrack) mListData.get(positon);
+        int dataBaseIndex = deleteData.getId();
+        DataSupport.delete(HistoricalTrack.class, dataBaseIndex);
         mListData.remove(positon);
     }
 

@@ -1,11 +1,9 @@
 package com.example.hfnunavigation.activity;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.preference.PreferenceManager;
@@ -13,8 +11,6 @@ import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -33,7 +29,7 @@ import android.widget.Toast;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.MapView;
 import com.bumptech.glide.Glide;
-import com.example.hfnunavigation.LoginListener;
+import com.example.hfnunavigation.QQ.LoginListener;
 import com.example.hfnunavigation.MessageEvent;
 import com.example.hfnunavigation.MyApplication;
 import com.example.hfnunavigation.MyDialogFragment;
@@ -43,28 +39,20 @@ import com.example.hfnunavigation.db.HistoricalTrack;
 import com.example.hfnunavigation.map.MyBaiduMap;
 import com.example.hfnunavigation.util.LogUtil;
 import com.example.hfnunavigation.util.StringConstant;
+import com.example.hfnunavigation.util.SystemUtil;
 import com.tencent.connect.common.Constants;
 import com.tencent.tauth.Tencent;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MapActivity extends AppCompatActivity implements View.OnClickListener {
 
     private MyBaiduMap myBaiduMap = MyBaiduMap.getMyBaiduMap();
-    public static final int GPSREQUESTCODE = 1;
+    public static final int GPS_REQUEST_CODE = 1;
 
-    private static String[] permissionsList = {
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.READ_PHONE_STATE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
-    private MapView mapView;
     private FloatingActionButton floatingButton;    // 悬浮按钮
     private CardView inputLocationView;             // 整个输入地址视图
     private CircleImageView profilePicture;         // 头像框
@@ -94,13 +82,13 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
            注意该方法要在setContentView方法之前实现  */
         SDKInitializer.initialize(MyApplication.getContext());
         setContentView(R.layout.activity_main);
-        mapView = findViewById(R.id.bmapView);
+        MapView mapView = findViewById(R.id.bmapView);
         //获取地图控件引用
         myBaiduMap.setmMapView(mapView);
         myBaiduMap.setmBaiduMap(mapView.getMap());
         customViewInitialize();
         initStatus();
-        requestPermission();
+        requestLocation();
     }
 
     private void customViewInitialize() {
@@ -198,49 +186,6 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         Glide.with(this).load(R.drawable.profile_picture).into(navProfilePicture);
     }
 
-
-    private void requestPermission() {
-        List<String> requestPermissionsList = new ArrayList<>();
-        for (String permission : permissionsList) {
-            if (ContextCompat.checkSelfPermission(MapActivity.this,
-                    permission) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissionsList.add(permission);
-            }
-        }
-        if (!requestPermissionsList.isEmpty()) {
-            mapView.setVisibility(View.GONE);
-            String[] requestPermissions = requestPermissionsList.toArray(new String[requestPermissionsList.size()]);
-            ActivityCompat.requestPermissions(MapActivity.this, requestPermissions, 1);
-        } else {
-            requestLocation();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case 1:
-                if (grantResults.length > 0) {
-                    for (int result : grantResults) {
-                        if (result != PackageManager.PERMISSION_GRANTED) {
-                            Toast.makeText(this, "必须同意所有权限才能使用本程序",
-                                    Toast.LENGTH_SHORT).show();
-                            finish();
-                            return;
-                        }
-                    }
-                    mapView.setVisibility(View.VISIBLE);
-                    requestLocation();
-                } else {
-                    Toast.makeText(this, "发生未知错误", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
     private void requestLocation() {
         IntentFilter intentFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
         NetworkChangeReciver networkChangeReciver = new NetworkChangeReciver();
@@ -254,8 +199,8 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case GPSREQUESTCODE:
-                LogUtil.d("GPSREQUESTCODE:", GPSREQUESTCODE + "");
+            case GPS_REQUEST_CODE:
+                LogUtil.d("GPS_REQUEST_CODE:", GPS_REQUEST_CODE + "");
                 myBaiduMap.getmLocationClient().start();
                 break;
                 //重新登录时回调需要使用
@@ -366,7 +311,8 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                         break;
                     case R.id.preferred_location:
                         if (login) {
-
+                            intent.setClass(MapActivity.this, PreferredLocationActivity.class);
+                            startActivity(intent);
                         } else {
                             Toast.makeText(MapActivity.this, "请登录后再查看偏好地点", Toast.LENGTH_SHORT).show();
                         }
@@ -389,12 +335,16 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             case R.id.navigation_route:  //悬浮按钮点击事件
                 myBaiduMap.getMyWidgetListener().floatingButtonClickListener();
                 if (login) {
-                    HistoricalTrack historicalTrack = new HistoricalTrack();
-                    historicalTrack.setUserID(userID);
-                    historicalTrack.setStartPlaceName("我的位置");
-                    historicalTrack.setEndPlaceName(myBaiduMap.getEndPlaceName());
-                    historicalTrack.setHistoryTime(new Date());
-                    historicalTrack.save();
+                    if (SystemUtil.checkNetworkIsOpen(this)) {
+                        HistoricalTrack historicalTrack = new HistoricalTrack();
+                        historicalTrack.setUserID(userID);
+                        historicalTrack.setStartPlaceName("我的位置");
+                        historicalTrack.setEndPlaceName(myBaiduMap.getEndPlaceName());
+                        historicalTrack.setHistoryTime(new Date());
+                        historicalTrack.save();
+                    } else {
+                        Toast.makeText(this, "获取路线失败，请打开网络后再试", Toast.LENGTH_SHORT).show();
+                    }
                 }
                 break;
             case R.id.button_cancle:     //取消按钮点击事件
@@ -410,12 +360,16 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                 myBaiduMap.getMyWidgetListener().navigationButtonClickListener();
                 if (myBaiduMap.checkStartAndEndPlace()) {
                     if (login) {
-                        HistoricalTrack historicalTrack = new HistoricalTrack();
-                        historicalTrack.setUserID(userID);
-                        historicalTrack.setStartPlaceName(myBaiduMap.getStartPlaceName());
-                        historicalTrack.setEndPlaceName(myBaiduMap.getEndPlaceName());
-                        historicalTrack.setHistoryTime(new Date());
-                        historicalTrack.save();
+                        if (SystemUtil.checkNetworkIsOpen(this)) {
+                            HistoricalTrack historicalTrack = new HistoricalTrack();
+                            historicalTrack.setUserID(userID);
+                            historicalTrack.setStartPlaceName(myBaiduMap.getStartPlaceName());
+                            historicalTrack.setEndPlaceName(myBaiduMap.getEndPlaceName());
+                            historicalTrack.setHistoryTime(new Date());
+                            historicalTrack.save();
+                        } else {
+                            Toast.makeText(this, "获取路线失败，请打开网络后再试", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
                 //隐藏软键盘
@@ -473,7 +427,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
 
     @Override
     protected void onPause() {
-        myBaiduMap.pause();
+        // myBaiduMap.pause();
         super.onPause();
     }
 

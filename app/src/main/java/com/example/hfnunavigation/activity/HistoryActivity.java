@@ -2,15 +2,18 @@ package com.example.hfnunavigation.activity;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+
 import com.example.hfnunavigation.HistoryAdapter;
 import com.example.hfnunavigation.util.MyComparator;
 import com.example.hfnunavigation.MyDialogFragment;
@@ -18,7 +21,9 @@ import com.example.hfnunavigation.MyItemTouchHelperCallBack;
 import com.example.hfnunavigation.MyItemTouchListener;
 import com.example.hfnunavigation.R;
 import com.example.hfnunavigation.db.HistoricalTrack;
+
 import org.litepal.crud.DataSupport;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +43,15 @@ public class HistoryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
-        initHistory();
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle(R.string.history);
+        toolbar.setTitleMarginStart(90 * 3);  //默认px为单位，测试机dp=3px
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+        initHistoricalTrack();
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -66,16 +79,16 @@ public class HistoryActivity extends AppCompatActivity {
         });
     }
 
-    private void initHistory() {
+    private void initHistoricalTrack() {
         //删除数据库中所有数据，用来调试程序
         //DataSupport.deleteAll(HistoricalTrack.class);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String userID = preferences.getString("openid", null);
         //获取数据库中指定用户的数据，recycleView的数据源
-        historicalTrackList = DataSupport.where("userID =?", userID).find(HistoricalTrack.class);
+        historicalTrackList = DataSupport.where("userID = ?", userID).find(HistoricalTrack.class);
         //该list保存数据库中的原始数据，用来调试查看数据以及确定删除数据是否正确
         List<HistoricalTrack> historicalTrackOriginList = new ArrayList<>(historicalTrackList);
-        System.out.println("用户id："+ userID);
+        System.out.println("用户id：" + userID);
         for (HistoricalTrack historicalTrack : historicalTrackOriginList) {
             System.out.println("HistoricalTrack{" +
                     "id=" + historicalTrack.getId() +
@@ -121,6 +134,9 @@ public class HistoryActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
             case R.id.delete:
                 final MyDialogFragment myDialogFragment = MyDialogFragment.getInstance(new MyDialogFragment.MyDialogCallBack() {
                     @Override
@@ -153,7 +169,7 @@ public class HistoryActivity extends AppCompatActivity {
                                     System.out.println("列表中删除的位置：" + (index - removeCount));
                                     removeCount++;
                                 }
-                                System.out.println("在数据库中的位置："+dataBaseIndex);
+                                System.out.println("在数据库中的位置：" + dataBaseIndex);
                                 DataSupport.delete(HistoricalTrack.class, dataBaseIndex);
                             }
                         }

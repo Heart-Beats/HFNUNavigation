@@ -93,7 +93,7 @@ public abstract class MyItemTouchListener implements RecyclerView.OnItemTouchLis
             mIsSingleClick = false;
             if(childView != null){
                 //回调onItemClick方法
-                onItemClick(rv.getChildViewHolder(childView),rv.getChildLayoutPosition(childView));
+               // onItemClick(childView,rv.getChildLayoutPosition(childView));
                 return true;
             }
             return false;
@@ -103,7 +103,8 @@ public abstract class MyItemTouchListener implements RecyclerView.OnItemTouchLis
             mIsLongPressed = false;
             if(childView != null){
                 //回调onItemClick方法
-                onItemLongPress(childView,rv.getChildLayoutPosition(childView));
+                //onItemLongPress(childView,rv.getChildLayoutPosition(childView));
+                mGestureDetectorCompat.onTouchEvent(e);
                 return true;
             }
             return false;

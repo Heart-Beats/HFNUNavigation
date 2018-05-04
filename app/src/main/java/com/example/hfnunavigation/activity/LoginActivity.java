@@ -8,7 +8,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import com.example.hfnunavigation.LoginListener;
+
+import com.example.hfnunavigation.QQ.LoginListener;
 import com.example.hfnunavigation.R;
 import com.example.hfnunavigation.util.LogUtil;
 import com.example.hfnunavigation.util.StringConstant;
