@@ -5,9 +5,9 @@ import org.litepal.crud.DataSupport;
 public class SchoolLocation extends DataSupport{
 
     private int id;
-    private String LocationName;
-    private double Latitude;
-    private double Longitude;
+    private String locationName;
+    private double latitude;
+    private double longitude;
     private String moreInfo;
 
     public int getId() {
@@ -19,27 +19,27 @@ public class SchoolLocation extends DataSupport{
     }
 
     public String getLocationName() {
-        return LocationName;
+        return locationName;
     }
 
     public void setLocationName(String locationName) {
-        this.LocationName = locationName;
+        this.locationName = locationName;
     }
 
     public double getLatitude() {
-        return Latitude;
+        return latitude;
     }
 
     public void setLatitude(double latitude) {
-        Latitude = latitude;
+        this.latitude = latitude;
     }
 
     public double getLongitude() {
-        return Longitude;
+        return longitude;
     }
 
     public void setLongitude(double longitude) {
-        Longitude = longitude;
+        this.longitude = longitude;
     }
 
     public String getMoreInfo() {

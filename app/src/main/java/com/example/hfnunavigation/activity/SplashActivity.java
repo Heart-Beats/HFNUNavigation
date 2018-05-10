@@ -11,8 +11,10 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.example.hfnunavigation.R;
 
 import java.util.ArrayList;
@@ -20,7 +22,7 @@ import java.util.List;
 
 public class SplashActivity extends AppCompatActivity {
 
-    private static final int SPLASH_DISPLAY_LENGHT = 2330; // 延迟
+    private static final int SPLASH_DISPLAY_LENGHT = 2268; // 延迟
 
     private static String[] permissionsList = {
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -29,26 +31,33 @@ public class SplashActivity extends AppCompatActivity {
     };
 
     private SharedPreferences preferences;
+    private boolean firstInApplication;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-        requestPermission();
 /*      1.  立即执行Runnable对象
         public final boolean post(Runnable r);
         2.  在指定的时间（uptimeMillis）执行Runnable对象
         public final boolean postAtTime(Runnable r, long uptimeMillis);
         3.  在指定的时间间隔（delayMillis）执行Runnable对象
         public final boolean postDelayed(Runnable r, long delayMillis);*/
-        boolean firstInApplication = preferences.getBoolean("firstInApplication", false);
+/*        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean firstInApplication = preferences.getBoolean("firstInApplication", false);*/
+        requestPermission();
         if (!firstInApplication) {
             //当不是第一次打开应用延时后进入主活动
             new Handler().postDelayed(new Runnable() {
                 public void run() {
+                    LottieAnimationView animationViewLoad = findViewById(R.id.animation_load);
+                    animationViewLoad.setVisibility(View.GONE);
                     enterMainActivity();
                 }
             }, SPLASH_DISPLAY_LENGHT);
+        } else {
+            LottieAnimationView animationViewWelcome = findViewById(R.id.animation_welcome);
+            animationViewWelcome.setVisibility(View.GONE);
         }
     }
 
@@ -60,18 +69,19 @@ public class SplashActivity extends AppCompatActivity {
                 requestPermissionsList.add(permission);
             }
         }
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = preferences.edit();
+        //SharedPreferences.Editor editor = preferences.edit();
         if (!requestPermissionsList.isEmpty()) {
             //当firstInApplication为true时，说明第一次打开应用且没有获取权限
-            editor.putBoolean("firstInApplication", true);
+            //editor.putBoolean("firstInApplication", true);
+            firstInApplication = true;
             String[] requestPermissions = requestPermissionsList.toArray(new String[requestPermissionsList.size()]);
             ActivityCompat.requestPermissions(this, requestPermissions, 1);
         } else {
             //当firstInApplication为false时，说明不是第一次打开应用且已获取所有权限
-            editor.putBoolean("firstInApplication", false);
+            firstInApplication = false;
+            // editor.putBoolean("firstInApplication", false);
         }
-        editor.apply();
+        //  editor.apply();
     }
 
     @Override

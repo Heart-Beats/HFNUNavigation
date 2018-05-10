@@ -1,5 +1,6 @@
 package com.example.hfnunavigation.activity;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -87,7 +88,22 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         myBaiduMap.setmMapView(mapView);
         myBaiduMap.setmBaiduMap(mapView.getMap());
         customViewInitialize();
-        initStatus();
+        if (SystemUtil.checkNetworkIsOpen(this)) {
+            initStatus();
+
+        } else {
+            Toast.makeText(this, "本应用需要联网才可正常使用，请确认网络已连接",
+                    Toast.LENGTH_LONG).show();
+            IntentFilter intentFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
+            registerReceiver(new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    if (SystemUtil.checkNetworkIsOpen(MapActivity.this)) {
+                        initStatus();
+                    }
+                }
+            }, intentFilter);
+        }
         requestLocation();
     }
 
@@ -201,6 +217,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         switch (requestCode) {
             case GPS_REQUEST_CODE:
                 LogUtil.d("GPS_REQUEST_CODE:", GPS_REQUEST_CODE + "");
+                LogUtil.d("resultCode:", resultCode + "");
                 myBaiduMap.getmLocationClient().start();
                 break;
                 //重新登录时回调需要使用
@@ -342,8 +359,6 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                         historicalTrack.setEndPlaceName(myBaiduMap.getEndPlaceName());
                         historicalTrack.setHistoryTime(new Date());
                         historicalTrack.save();
-                    } else {
-                        Toast.makeText(this, "获取路线失败，请打开网络后再试", Toast.LENGTH_SHORT).show();
                     }
                 }
                 break;
@@ -367,8 +382,6 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                             historicalTrack.setEndPlaceName(myBaiduMap.getEndPlaceName());
                             historicalTrack.setHistoryTime(new Date());
                             historicalTrack.save();
-                        } else {
-                            Toast.makeText(this, "获取路线失败，请打开网络后再试", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -489,4 +502,5 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         }
         //super.onBackPressed();
     }
+
 }

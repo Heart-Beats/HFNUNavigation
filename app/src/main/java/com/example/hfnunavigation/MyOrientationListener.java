@@ -1,14 +1,10 @@
 package com.example.hfnunavigation;
 
 import android.content.Context;
-import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-
-import com.baidu.location.BDLocation;
-import com.example.hfnunavigation.map.MyLocationListener;
 
 public class MyOrientationListener implements SensorEventListener {
     private SensorManager mySensorManager;

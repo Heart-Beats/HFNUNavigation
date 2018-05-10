@@ -19,9 +19,10 @@
     <string name="about">关于</string>
     <string name="app_info">关于软件</string>
     <string name="version">V  1.0</string>
-    <string name="author">作者：张磊</string>
+    <string name="developer">开发者：张磊</string>
     <string name="author_grade">年级：2014级软件工程</string>
     <string name="author_qq">QQ：913305160</string>
     <string name="author_email">邮箱：h913305160@gmail.com</string>
+    <string name="no_history">无任何记录</string>
 
 </resources>

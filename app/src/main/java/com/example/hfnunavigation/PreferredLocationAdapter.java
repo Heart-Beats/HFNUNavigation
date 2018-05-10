@@ -8,16 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import com.example.hfnunavigation.activity.MapActivity;
 import com.example.hfnunavigation.activity.PreferredLocationActivity;
 import com.example.hfnunavigation.map.MyBaiduMap;
-
 import org.greenrobot.eventbus.EventBus;
-
 import java.util.List;
 
-public class PerferredLocationAdapter extends RecyclerView.Adapter<PerferredLocationAdapter.ViewHolder> {
+public class PreferredLocationAdapter extends RecyclerView.Adapter<PreferredLocationAdapter.ViewHolder> {
 
     private List<PreferredLocationActivity.PreferredLocation> preferredLocationList;
     private Context context;
@@ -36,7 +33,7 @@ public class PerferredLocationAdapter extends RecyclerView.Adapter<PerferredLoca
         }
     }
 
-    public PerferredLocationAdapter(List<PreferredLocationActivity.PreferredLocation>
+    public PreferredLocationAdapter(List<PreferredLocationActivity.PreferredLocation>
                                             preferredLocationList, Context context) {
         this.preferredLocationList = preferredLocationList;
         this.context = context;

@@ -411,7 +411,7 @@ public class MyBaiduMap {
     //自定义定位模式、定位图标、精度圈颜色
     private MyLocationConfiguration locationConfiguration() {
         MyLocationConfiguration.LocationMode mCurrentMode;
-        mCurrentMode = MyLocationConfiguration.LocationMode.NORMAL;//定位跟随态
+        mCurrentMode = MyLocationConfiguration.LocationMode.NORMAL;//定位普通态
         //mCurrentMode = MyLocationConfiguration.LocationMode.NORMAL;   //默认为 LocationMode.NORMAL 普通态
         //mCurrentMode = MyLocationConfiguration.LocationMode.COMPASS;  //定位罗盘态
         //BitmapDescriptor mCurrentMarker = BitmapDescriptorFactory.fromResource(R.drawable.icon_geo);
@@ -439,7 +439,11 @@ public class MyBaiduMap {
             startPlace = currentLocation;
             startPlaceName = "我的位置";
         }
-        walkingPlaining.startToFinshRoute(startPlace, endPlace);
+        if (SystemUtil.checkNetworkIsOpen(context)) {
+            walkingPlaining.startToFinshRoute(startPlace, endPlace);
+        } else {
+            Toast.makeText(context, "获取路线失败，请打开网络后再试", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public boolean checkStartAndEndPlace() {

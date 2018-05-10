@@ -27,14 +27,25 @@ public class MyLocationListener extends BDAbstractLocationListener {
         //此处的BDLocation为定位结果信息类，通过它的各种get方法可获取定位相关的全部结果
         double latitude = location.getLatitude();    //获取纬度信息
         double longitude = location.getLongitude();    //获取经度信息
+/*
         float radius = location.getRadius();    //获取定位精度，默认值为0.0f
         String coorType = location.getCoorType();
         //获取经纬度坐标类型，以LocationClientOption中设置过的坐标类型为准
         int errorCode = location.getLocType();
         //获取定位类型、定位错误返回码，具体信息可参照类参考中BDLocation类中的说明
+*/
 
         firstIn(location);
-        rangeJudgment(latitude, longitude);
+        if (rangeJudgment(latitude, longitude)) {
+            displayMyLocation(location, latitude, longitude);
+        } else {
+            Toast.makeText(context, "当前位置不在合师范围内！", Toast.LENGTH_SHORT).show();
+        }
+        //保存当前位置
+        myBaiduMap.setCurrentLocation(new LatLng(latitude, longitude));
+    }
+
+    private void displayMyLocation(BDLocation location, double latitude, double longitude) {
         //location.setRadius(10.0f);
         // 构造定位数据
         MyLocationData locData = new MyLocationData.Builder()
@@ -47,8 +58,6 @@ public class MyLocationListener extends BDAbstractLocationListener {
 
         // 设置定位数据
         myBaiduMap.getmBaiduMap().setMyLocationData(locData);
-        //保存当前位置
-        myBaiduMap.setCurrentLocation(new LatLng(latitude,longitude));
     }
 
     private void firstIn(BDLocation location) {
@@ -66,16 +75,14 @@ public class MyLocationListener extends BDAbstractLocationListener {
         }
     }
 
-    private void rangeJudgment(double latitude, double longitude) {
+    private boolean rangeJudgment(double latitude, double longitude) {
         LatLngBounds latLngBounds = myBaiduMap.getHfnu().getHfnuRange();
         LatLng southWestLatlng = latLngBounds.southwest;
         LatLng northEastLatlng = latLngBounds.northeast;
-        if (latitude < southWestLatlng.latitude
-                || longitude < southWestLatlng.longitude
-                || latitude > northEastLatlng.latitude
-                || longitude > northEastLatlng.longitude) {
-            Toast.makeText(context, "当前位置不在合师范围内！", Toast.LENGTH_SHORT).show();
-        }
+        return !(latitude < southWestLatlng.latitude)
+                && !(longitude < southWestLatlng.longitude)
+                && !(latitude > northEastLatlng.latitude)
+                && !(longitude > northEastLatlng.longitude);
     }
 
     /**

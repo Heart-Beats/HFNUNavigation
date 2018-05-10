@@ -7,11 +7,31 @@
     tools:context=".activity.SplashActivity">
 
     <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/animation_view"
+        android:id="@+id/animation_bg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="centerCrop"
+        app:lottie_fileName="gradient_animated_background.json"
+        app:lottie_loop="true"
+        app:lottie_autoPlay="true" />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/animation_load"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:lottie_fileName="glow_loading.json"
         android:layout_centerInParent="true"
+        app:lottie_loop="true"
+        app:lottie_autoPlay="true" />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/animation_welcome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:scaleType="centerCrop"
+        app:lottie_fileName="line_loading.json"
+        app:tint="@color/blue"
         app:lottie_loop="true"
         app:lottie_autoPlay="true" />
 

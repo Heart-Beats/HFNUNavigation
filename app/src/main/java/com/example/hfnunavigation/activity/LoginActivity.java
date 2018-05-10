@@ -8,6 +8,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.hfnunavigation.QQ.LoginListener;
 import com.example.hfnunavigation.R;
@@ -66,6 +67,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         startActivity(intent);
                     }
                 });
+                break;
+            case R.id.login_wechat:
+                Toast.makeText(this, "该登录方式暂未开放", Toast.LENGTH_SHORT).show();
                 break;
         }
     }

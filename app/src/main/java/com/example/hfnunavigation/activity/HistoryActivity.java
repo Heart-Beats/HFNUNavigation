@@ -12,6 +12,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.hfnunavigation.HistoryAdapter;
@@ -33,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class HistoryActivity extends AppCompatActivity {
 
     private HistoryAdapter adapter;
+    private MyItemTouchHelperCallBack itemTouchHelperCallBack;
     //该list保存数据库中排序后的数据，用来显示在recycleView中，
     private List<HistoricalTrack> historicalTrackList = new ArrayList<>();
     private Menu mMenu;
@@ -57,8 +59,7 @@ public class HistoryActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         adapter = new HistoryAdapter(historicalTrackList, checkMap, this);
         recyclerView.setAdapter(adapter);
-        MyItemTouchHelperCallBack itemTouchHelperCallBack =
-                new MyItemTouchHelperCallBack(recyclerView, historicalTrackList);
+        itemTouchHelperCallBack = new MyItemTouchHelperCallBack(recyclerView, historicalTrackList);
         itemTouchHelperCallBack.setItemDrag(false);
         ItemTouchHelper helper = new ItemTouchHelper(itemTouchHelperCallBack);
         helper.attachToRecyclerView(recyclerView);   //绑定目标RecyclerView对象
@@ -97,8 +98,13 @@ public class HistoryActivity extends AppCompatActivity {
                     ", endPlaceName='" + historicalTrack.getEndPlaceName() + '\'' +
                     ", historyTime=" + historicalTrack.getHistoryTime() + '}');
         }
-        //对数据源进行排序，这里recycleView需要排序后的数据
-        Collections.sort(this.historicalTrackList, new MyComparator<HistoricalTrack>());
+        if (historicalTrackList.size() == 0) {
+            TextView noHistory = findViewById(R.id.no_history);
+            noHistory.setVisibility(View.VISIBLE);
+        } else {
+            //对数据源进行排序，这里recycleView需要排序后的数据
+            Collections.sort(this.historicalTrackList, new MyComparator<HistoricalTrack>());
+        }
     }
 
     @Override
@@ -111,6 +117,7 @@ public class HistoryActivity extends AppCompatActivity {
     //隐藏菜单栏按钮
     private void hiddenEditMenu() {
         adapter.setCheckBoxVisibility(false);
+        itemTouchHelperCallBack.setItemSwipe(true);
         if (null != mMenu) {
             for (int i = 0; i < mMenu.size(); i++) {
                 mMenu.getItem(i).setVisible(false);
@@ -122,6 +129,7 @@ public class HistoryActivity extends AppCompatActivity {
     //显示菜单栏按钮
     private void showEditMenu() {
         adapter.setCheckBoxVisibility(true);
+        itemTouchHelperCallBack.setItemSwipe(false);
         if (null != mMenu) {
             for (int i = 0; i < mMenu.size(); i++) {
                 mMenu.getItem(i).setVisible(true);

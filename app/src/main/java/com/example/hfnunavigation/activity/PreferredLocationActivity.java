@@ -11,10 +11,11 @@ import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.example.hfnunavigation.MyItemTouchHelperCallBack;
 import com.example.hfnunavigation.MyItemTouchListener;
-import com.example.hfnunavigation.PerferredLocationAdapter;
+import com.example.hfnunavigation.PreferredLocationAdapter;
 import com.example.hfnunavigation.R;
 import com.example.hfnunavigation.db.HistoricalTrack;
 import com.example.hfnunavigation.util.MyComparator;
@@ -45,7 +46,7 @@ public class PreferredLocationActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        PerferredLocationAdapter adapter = new PerferredLocationAdapter(preferredLocationList, this);
+        PreferredLocationAdapter adapter = new PreferredLocationAdapter(preferredLocationList, this);
         recyclerView.setAdapter(adapter);
         MyItemTouchHelperCallBack itemTouchHelperCallBack =
                 new MyItemTouchHelperCallBack(recyclerView, preferredLocationList);
@@ -72,9 +73,14 @@ public class PreferredLocationActivity extends AppCompatActivity {
         //获得指定列的用户数据
         List<HistoricalTrack> historicalTrackList = DataSupport.select("startPlaceName",
                 "endPlaceName").where("userID = ?", userID).find(HistoricalTrack.class);
-        preferredLocationList = totalHistoricalTrack(historicalTrackList);
-        //将次数按从大到小排列
-        Collections.sort(preferredLocationList, new MyComparator<>());
+        if (historicalTrackList.size() == 0) {
+            TextView noHistory = findViewById(R.id.no_history);
+            noHistory.setVisibility(View.VISIBLE);
+        } else {
+            preferredLocationList = totalHistoricalTrack(historicalTrackList);
+            //将次数按从大到小排列
+            Collections.sort(preferredLocationList, new MyComparator<>());
+        }
     }
 
     //分析总计历史轨迹
